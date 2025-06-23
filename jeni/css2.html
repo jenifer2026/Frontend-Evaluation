@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Flexbox Multi-row & Column Layout</title>
+<style>
+  .container {
+    display: flex;
+    /* flex-wrap: wrap; */
+    gap: 25px;
+  }
+  .box {
+    flex: 2 2 500px;
+    height: 500px;
+    background-color: #eef1f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(20, 19, 19);
+    font-weight: bold;
+  }
+  img{
+    width: 50%;
+    height: fit-content;
+  }
+</style>
+</head>
+<body>
+<h2>Groceries</h2>
+<div class="container">
+  <div class="box">
+    <h2>Salt</h2>
+    <br>
+    <img src="salt.jpeg" alt="salt">
+  </div>
+  <div class="box">
+    <h2>Sugar</h2>
+    <br>
+    <img src="sugar.avif" alt="sugar">
+  </div>
+  <div class="box">
+    <h2>Milk</h2>
+    <br>
+    <img src="farm.jpeg" alt="Milk">
+  </div>
+  <div class="box">
+    <h2>Oil</h2>
+    <br>
+    <img src="gold winner.jpeg" alt="Oil">
+  </div>
+  <div class="box">
+    <h2>Tea</h2>
+    <br>
+    <img src="tea.jpg" alt="tea">
+  </div>
+</div>
+</body>
+</html>

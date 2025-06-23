@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sriram Grocery</title>
+<style>
+  body { 
+    font-family: Arial, sans-serif;
+     margin: 20px; 
+     background: #f0f8ff; 
+    }
+  h1 { 
+    text-align: center;
+ }
+  .product-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); 
+    gap: 25px; 
+    margin-bottom: 20px;
+ }
+  .product {
+     background: #fff; 
+     padding: 10px; 
+     border-radius: 8px; 
+     box-shadow: 0 0 8px rgba(0,0,0,0.1); 
+    }
+  button { 
+    margin-top: 5px; 
+    padding: 5px 10px; 
+    border: none; 
+    border-radius: 4px;
+     cursor: pointer; 
+    }
+  #cart { 
+    margin-top: 20px; 
+}
+  #cart-items { 
+    margin-top: 10px;
+ }
+  .cart-item { 
+    display: flex; 
+    justify-content: space-between;
+     padding: 8px 0; 
+     border-bottom: 1px solid #ccc; 
+    }
+  #total { font-weight: bold; margin-top: 10px; }
+  .lang-toggle { margin-bottom: 20px; 
+  display: flex;
+  flex-flow: row;
+  justify-content: end;
+  }
+</style>
+</head>
+<body>
+
+<!-- <h1 id="title">SriRam Online grocery store</h1> -->
+<h1 id="title">Sriram Grocery store</h1>
+<!-- <button onclick="renderWishlist()">View Wishlist</button> -->
+
+
+<div class="lang-toggle">
+  <button onclick="setLanguage('en')">English</button>
+  <button onclick="setLanguage('es')">Spanish</button>
+  <button onclick="setLanguage('fr')">French</button>
+</div>
+
+<!-- Price Range Filter -->
+<div>
+  <h3 id="filter-title">Filter by Price</h3>
+  <input type="number" id="minPrice" placeholder="Min" />
+  <input type="number" id="maxPrice" placeholder="Max" />
+  <button onclick="applyFilter()">Apply Filter</button>
+</div>
+<br>
+<br>
+<!-- Product List -->
+<div class="product-grid" id="product-grid">
+  <!-- Products will be dynamically inserted here -->
+</div>
+
+<!-- Shopping Cart -->
+<div id="cart">
+  <h2 id="cart-title">Your Cart</h2>
+  <div id="cart-items"></div>
+  <div id="total">Total: $0.00</div>
+</div>
+
+<!-- Sample Discount Code -->
+<div>
+  <h3 id="discount-title">Discount Code</h3>
+  <input type="text" id="discountCode" placeholder="Enter code" />
+  <button onclick="applyDiscount()">Apply</button>
+  <div id="discount-message"></div>
+</div>
+
+<button onclick="checkout()">Checkout</button>
+<div id="order-summary" style="display:none; border:1px solid #ccc; padding:10px; margin-top:20px;">
+  <h3>Order Summary</h3>
+  <div id="order-details"></div>
+  <button onclick="closeOrder()">Close</button>
+</div>
+
+<script>
+  // Language content
+  const languageContent = {
+    en: {
+      title: "Sriram Grocery Store",
+      filterTitle: "Filter by Price",
+      cartTitle: "Your Cart",
+      discountTitle: "Discount Code",
+      total: "Total: $",
+      applyFilter: "Apply Filter",
+      enterCode: "Enter code",
+      invalidCode: "Invalid code",
+      validCode: "Discount applied! 10% off.",
+    },
+    es: {
+      title: "tienda de comestibles Sriram",
+      filterTitle: "Filtrar por precio",
+      cartTitle: "Tu Carrito",
+      discountTitle: "Código de Descuento",
+      total: "Total: $",
+      applyFilter: "Aplicar Filtro",
+      enterCode: "Ingresa código",
+      invalidCode: "Código inválido",
+      validCode: "¡Descuento aplicado! 10% off.",
+    },
+    fr: {
+      title: "magasin d'épicerie Sriram",
+      filterTitle: "Filtrer par prix",
+      cartTitle: "Votre Panier",
+      discountTitle: "Code de Réduction",
+      total: "Total : $",
+      applyFilter: "Appliquer le filtre",
+      enterCode: "Entrer le code",
+      invalidCode: "Code invalide",
+      validCode: "Réduction appliquée! 10% de rabais.",
+    }
+  };
+  let currentLanguage = 'en';
+
+  function setLanguage(lang) {
+    currentLanguage = lang;
+    document.getElementById('title').textContent = languageContent[lang].title;
+    document.getElementById('filter-title').textContent = languageContent[lang].filterTitle;
+    document.getElementById('cart-title').textContent = languageContent[lang].cartTitle;
+    document.querySelector('#discount-title').textContent = languageContent[lang].discountTitle;
+    document.getElementById('total').textContent = languageContent[lang].total + calculateTotal().toFixed(2);
+  }
+
+ const products = [
+  {
+    id: 1,
+    name: 'Oil',
+    price: 5,
+    image: 'gold winner.jpeg'
+  },
+  {
+    id: 2,
+    name: 'Salt',
+    price: 1,
+    image: 'salt.jpeg'
+  },
+  {
+    id: 3,
+    name: 'Sugar',
+    price: 2.5,
+    image: 'sugar.avif'
+  },
+  {
+    id: 4,
+    name: 'Milk',
+    price: 3,
+    image: 'farm.jpeg'
+  },
+  {
+    id: 5,
+    name: 'Tea Powder',
+    price: 4,
+    image: 'tea.jpg'
+  }
+];
+
+  let filteredProducts = [...products]; // for filtering
+  const cart = {};
+  let discountApplied = false;
+
+  // Render products
+  function renderProducts() {
+  const grid = document.getElementById('product-grid');
+  grid.innerHTML = '';
+  filteredProducts.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'product';
+    div.innerHTML = `
+      <img src="${p.image}" alt="${p.name}" style="width:150px; height:auto; border-radius:8px; display:block; margin:auto;">
+      <strong>${p.name}</strong>
+      <p>Price: $${p.price}</p>
+      <button onclick="addToCart(${p.id})">Add to Cart</button>
+      <button onclick="addToWishlist(${p.id})">Add to Wishlist</button>
+      <div id="rating-${p.id}">Rating: N/A</div>
+      <div>
+        <label>Rate: </label>
+        <select onchange="rateProduct(${p.id}, this.value)">
+          <option value="0">Select</option>
+          <option value="1">1★</option>
+          <option value="2">2★</option>
+          <option value="3">3★</option>
+          <option value="4">4★</option>
+          <option value="5">5★</option>
+        </select>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+  // Add to cart
+  function addToCart(id) {
+    const product = products.find(p => p.id === id);
+    if (cart[id]) {
+      cart[id].quantity += 1;
+    } else {
+      cart[id] = { ...product, quantity: 1 };
+    }
+    renderCart();
+  }
+
+  // Remove from cart
+  function removeFromCart(id) {
+    delete cart[id];
+    renderCart();
+  }
+
+  // Update quantity
+  function updateQuantity(id, delta) {
+    if (cart[id]) {
+      cart[id].quantity += delta;
+      if (cart[id].quantity <= 0) delete cart[id];
+      renderCart();
+    }
+  }
+
+  // Render cart
+  function renderCart() {
+    const container = document.getElementById('cart-items');
+    container.innerHTML = '';
+    let total = 0;
+    for (const id in cart) {
+      const item = cart[id];
+      const totalPrice = item.price * item.quantity;
+      total += totalPrice;
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <div>
+          ${item.name} x${item.quantity} @ $${item.price} each
+        </div>
+        <div>
+          <button onclick="updateQuantity(${id}, -1)">-</button>
+          <button onclick="updateQuantity(${id}, 1)">+</button>
+          <button onclick="removeFromCart(${id})">Remove</button>
+        </div>
+        <div>Subtotal: $${totalPrice.toFixed(2)}</div>
+      `;
+      container.appendChild(div);
+    }
+    document.getElementById('total').textContent = languageContent[currentLanguage].total + total.toFixed(2);
+  }
+
+  // Calculate total
+  function calculateTotal() {
+    let total = 0;
+    for (const id in cart) {
+      total += cart[id].price * cart[id].quantity;
+    }
+    return total;
+  }
+
+  // Apply filter
+  function applyFilter() {
+    const min = parseFloat(document.getElementById('minPrice').value) || 0;
+    const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+    filteredProducts = products.filter(p => p.price >= min && p.price <= max);
+    renderProducts();
+  }
+
+  // Discount code logic
+  function applyDiscount() {
+    const code = document.getElementById('discountCode').value.trim();
+    const message = document.getElementById('discount-message');
+    if (code === 'SAVE10' && !discountApplied) {
+      discountApplied = true;
+      message.textContent = languageContent[currentLanguage].validCode;
+    } else {
+      message.textContent = languageContent[currentLanguage].invalidCode;
+    }
+    // Re-render total with discount if applicable
+    renderCart();
+  }
+
+  // Rate product
+  const ratings = {}; // store ratings per product
+  function rateProduct(id, rating) {
+    ratings[id] = rating;
+    // Calculate average rating
+    const avg = Object.values(ratings).reduce((a,b) => a+parseInt(b), 0)/Object.values(ratings).length;
+    document.getElementById(`rating-${id}`).textContent = `Average rating: ${avg.toFixed(1)}★`;
+  }
+
+
+  setLanguage('en');
+  renderProducts();
+  renderCart();
+
+const wishlist = [];
+
+function addToWishlist(id) {
+  const product = products.find(p => p.id === id);
+  if (!wishlist.some(item => item.id === id)) {
+    wishlist.push(product);
+    alert(`${product.name} added to Wishlist`);
+  } else {
+    alert(`${product.name} is already in Wishlist`);
+  }
+}
+
+// Optional: Render Wishlist (e.g., in a modal or section)
+function renderWishlist() {
+  let wishlistDiv = document.getElementById('wishlist-items');
+  if (!wishlistDiv) {
+    wishlistDiv = document.createElement('div');
+    wishlistDiv.id = 'wishlist-items';
+    document.body.appendChild(wishlistDiv);
+  }
+  wishlistDiv.innerHTML = '<h3>Wishlist</h3>';
+  wishlist.forEach(item => {
+    wishlistDiv.innerHTML += `
+      <div>
+        ${item.name} - $${item.price}
+        <button onclick="removeFromWishlist(${item.id})">Remove</button>
+      </div>
+    `;
+  });
+}
+
+function removeFromWishlist(id) {
+  const index = wishlist.findIndex(item => item.id === id);
+  if (index !== -1) {
+    wishlist.splice(index, 1);
+    renderWishlist();
+  }
+}
+
+
+function checkout() {
+  const orderDiv = document.getElementById('order-summary');
+  const detailsDiv = document.getElementById('order-details');
+
+  if (Object.keys(cart).length === 0) {
+    alert('Your cart is empty!');
+    return;
+  }
+
+  let total = 0;
+  let detailsHTML = '<ul>';
+  for (const id in cart) {
+    const item = cart[id];
+    const subtotal = item.price * item.quantity;
+    total += subtotal;
+    detailsHTML += `<li>${item.name} x${item.quantity} @ $${item.price} = $${subtotal.toFixed(2)}</li>`;
+  }
+  detailsHTML += '</ul>';
+
+  // Apply discount if any
+  if (discountApplied) {
+    total = total * 0.9; // 10% discount
+  }
+
+  detailsHTML += `<p><strong>Total: $${total.toFixed(2)}</strong></p>`;
+
+  // Optionally, include Wishlist items in order summary
+  if (wishlist.length > 0) {
+    detailsHTML += '<h4>Wishlist Items</h4><ul>';
+    wishlist.forEach(item => {
+      detailsHTML += `<li>${item.name} - $${item.price}</li>`;
+    });
+    detailsHTML += '</ul>';
+  }
+
+  detailsDiv.innerHTML = detailsHTML;
+  orderDiv.style.display = 'block';
+}
+
+function closeOrder() {
+  document.getElementById('order-summary').style.display = 'none';
+  // Optionally, clear cart and wishlist after checkout
+   cart = {};
+   wishlist.length = 0;
+   renderCart();
+  renderWishlist();
+}
+</script>
+</body>
+</html>

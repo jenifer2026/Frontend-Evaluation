@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Science Quiz - The Human Body</title>
+</head>
+<body>
+<h2>Science Quiz for Kids: The Human Body</h2>
+<form id="quizForm">
+  <p>1. What is the largest organ in the human body?</p>
+  <label><input type="radio" name="q1" value="Skin" required> Skin</label><br>
+  <label><input type="radio" name="q1" value="Heart"> Heart</label><br>
+  <label><input type="radio" name="q1" value="Lungs"> Lungs</label><br>
+  
+  <p>2. Which part of your body helps you to breathe?</p>
+  <label><input type="radio" name="q2" value="Lungs" required> Lungs</label><br>
+  <label><input type="radio" name="q2" value="Stomach"> Stomach</label><br>
+  <label><input type="radio" name="q2" value="Brain"> Brain</label><br>
+  
+  <p>3. What do your muscles do?</p>
+  <label><input type="radio" name="q3" value="Help you move" required> Help you move</label><br>
+  <label><input type="radio" name="q3" value="Help you see"> Help you see</label><br>
+  <label><input type="radio" name="q3" value="Help you hear"> Help you hear</label><br>
+  
+  <br>
+  <button type="submit">Check Answers</button>
+</form>
+
+<h3>Your Results:</h3>
+<div id="results"></div>
+
+<script>
+  document.getElementById('quizForm').addEventListener('submit', function(e) {
+    e.preventDefault(); 
+
+    const answers = {
+      q1: document.querySelector('input[name="q1"]:checked')?.value,
+      q2: document.querySelector('input[name="q2"]:checked')?.value,
+      q3: document.querySelector('input[name="q3"]:checked')?.value
+    };
+
+    const correctAnswers = {
+      q1: 'Skin',
+      q2: 'Lungs',
+      q3: 'Help you move'
+    };
+
+    let resultHTML = '';
+
+    for (let key in answers) {
+      if (answers[key] === correctAnswers[key]) {
+        resultHTML += `<p>${key.toUpperCase()}: Correct!</p>`;
+      } else {
+        resultHTML += `<p>${key.toUpperCase()}: Incorrect. The correct answer is "${correctAnswers[key]}".</p>`;
+      }
+    }
+
+    // Display results
+    document.getElementById('results').innerHTML = resultHTML;
+  });
+</script>
+</body>
+</html>

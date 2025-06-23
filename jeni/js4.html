@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fruit shop</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f0f0f0; }
+  h1 { margin-bottom: 10px; }
+  button { padding: 8px 12px; margin: 5px; cursor: pointer; }
+  .section { background: #fff; padding: 20px; border-radius: 8px; display: none; margin-top: 20px; max-width: 600px; }
+  #product-list { display: flex; flex-wrap: wrap; gap: 10px; }
+  .product { border: 1px solid #ccc; padding: 10px; width: 45%; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<h1>SRIRAM FRUIT Shop</h1>
+
+<!-- Product List -->
+<div id="product-section" class="section" style="display:block;">
+  <h2>Products</h2>
+  <div id="product-list"></div>
+  <button onclick="goToCheckout()">Proceed to Checkout</button>
+</div>
+
+<!-- Checkout -->
+<div id="checkout-section" class="section">
+  <h2>Checkout</h2>
+  <h3>Shipping Address</h3>
+  <textarea id="shipping" rows="3" cols="50" placeholder="Enter address"></textarea><br>
+  <h3>Customer Info</h3>
+  <input id="name" placeholder="Full Name"/>
+  <br><br>
+
+  <input id="email" placeholder="Email"/><br>
+  <h3>Payment Info</h3>
+  <input id="payment" placeholder="Credit Card Number"/><br>
+  <button onclick="goBack()">Back</button>
+  <button onclick="reviewOrder()">Next</button>
+</div>
+
+<!-- Review & Confirm -->
+<div id="review-section" class="section">
+  <h2>Review & Confirm</h2>
+  <div id="review-details"></div>
+  <button onclick="goBack()">Back</button>
+  <button onclick="placeOrder()">Place Order</button>
+</div>
+
+<!-- Order Summary -->
+<div id="order-summary-section" class="section">
+  <h2>Order Summary</h2>
+  <div id="order-details"></div>
+  <button onclick="reset()">New Order</button>
+</div>
+
+<script>
+// Sample products
+const products = [
+  { id: 'p1', name: 'Apple', price: 1.99 },
+  { id: 'p2', name: 'Banana', price: 0.99 },
+  { id: 'p3', name: 'Orange', price: 1.49 },
+  { id: 'p4', name: 'Grapes', price: 2.99 },
+];
+
+let cart = [];
+let currentStep = 'products'; // 'products', 'checkout', 'review', 'summary'
+
+// Display products
+function showProducts() {
+  const container = document.getElementById('product-list');
+  container.innerHTML = '';
+  products.forEach(p => {
+    container.innerHTML += `
+      <div class="product">
+        <h4>${p.name}</h4>
+        <p>Price: $${p.price.toFixed(2)}</p>
+        <button onclick="addToCart('${p.id}')">Add to Cart</button>
+      </div>
+    `;
+  });
+}
+
+// Add to cart
+function addToCart(id) {
+  const item = products.find(p => p.id === id);
+  const existing = cart.find(c => c.id === id);
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({ ...item, quantity: 1 });
+  }
+  alert(`${item.name} added to cart`);
+}
+
+// Show a section and hide others
+function showSection(sectionId) {
+  document.querySelectorAll('.section').forEach(sec => sec.style.display='none');
+  document.getElementById(sectionId).style.display='block';
+}
+
+// Navigation functions
+function goToCheckout() {
+  if (cart.length === 0) { alert('Cart is empty!'); return; }
+  showSection('checkout-section');
+  currentStep='checkout';
+}
+function goBack() {
+  if (currentStep==='checkout') {
+    showSection('product-section');
+    currentStep='products';
+  } else if (currentStep==='review') {
+    showSection('checkout-section');
+    currentStep='checkout';
+  }
+}
+
+// Review order
+function reviewOrder() {
+  // Collect info
+  const address = document.getElementById('shipping').value.trim();
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const payment = document.getElementById('payment').value.trim();
+
+  if (!address || !name || !email || !payment) {
+    alert('Fill all info');
+    return;
+  }
+
+  // Show review
+  let html = '';
+  let total = 0;
+  cart.forEach(item => {
+    html += `<div>${item.name} x${item.quantity} @ $${item.price.toFixed(2)}</div>`;
+    total += item.price * item.quantity;
+  });
+  html += `<h4>Total: $${total.toFixed(2)}</h4>`;
+  html += `<h4>Shipping Address:</h4><p>${address}</p>`;
+  html += `<h4>Name:</h4><p>${name}</p>`;
+  html += `<h4>Email:</h4><p>${email}</p>`;
+  html += `<h4>Payment:</h4><p>${payment}</p>`;
+  document.getElementById('review-details').innerHTML = html;
+
+  showSection('review-section');
+  currentStep='review';
+}
+
+// Place order
+function placeOrder() {
+  // Final validation
+  const address = document.getElementById('shipping').value.trim();
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const payment = document.getElementById('payment').value.trim();
+
+  if (!address || !name || !email || !payment) {
+    alert('Fill all info');
+    return;
+  }
+
+  // Show order summary
+  let html = '';
+  let total = 0;
+  cart.forEach(item => {
+    html += `<div>${item.name} x${item.quantity} @ $${item.price.toFixed(2)}</div>`;
+    total += item.price * item.quantity;
+  });
+  html += `<h4>Total: $${total.toFixed(2)}</h4>`;
+  html += `<h4>Shipping Address:</h4><p>${address}</p>`;
+  html += `<h4>Name:</h4><p>${name}</p>`;
+  html += `<h4>Email:</h4><p>${email}</p>`;
+  html += `<h4>Payment:</h4><p>${payment}</p>`;
+  document.getElementById('order-details').innerHTML = html;
+
+  showSection('order-summary-section');
+  currentStep='summary';
+
+  // Clear cart for next order
+  cart = [];
+}
+
+// Reset to start
+function reset() {
+  document.getElementById('shipping').value='';
+  document.getElementById('name').value='';
+  document.getElementById('email').value='';
+  document.getElementById('payment').value='';
+  document.getElementById('order-details').innerHTML='';
+  showSection('product-section');
+  currentStep='products';
+  showProducts();
+}
+
+// Initialize
+showProducts();
+</script>
+
+</body>
+</html>

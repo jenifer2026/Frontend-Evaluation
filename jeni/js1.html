@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Grocery Store Shopping Cart</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f0f8ff; /* Light blue background */
+  }
+  h1 {
+    text-align: center;
+  }
+  .products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+  .product {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .product span {
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  button {
+    padding: 8px 12px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  .cart {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
+  #cart-items {
+    margin-bottom: 15px;
+  }
+  .cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  .cart-item span {
+    margin: 0 5px;
+  }
+  input[type=number] {
+    width: 60px;
+    padding: 4px;
+    text-align: center;
+  }
+  .total {
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align: right;
+  }
+  img{
+    width: 100%;
+    height: fit-content;
+  }
+</style>
+</head>
+<body>
+
+<h1>Grocery Store Shopping Cart</h1>
+
+<div class="products">
+  <div class="product">
+    <span>Oil - $5.00</span>
+    <img src="gold winner.jpeg">
+    <button onclick="addToCart('Oil', 5)">Add to Cart</button>
+  </div>
+  <div class="product">
+    <span>Salt - $1.00</span>
+    <img src="salt.jpeg">
+    <button onclick="addToCart('Salt', 1)">Add to Cart</button>
+  </div>
+  <div class="product">
+    <span>Sugar - $2.50</span>
+    <img src="sugar.avif">
+    <button onclick="addToCart('Sugar', 2.5)">Add to Cart</button>
+  </div>
+  <div class="product">
+    <span>Milk - $3.00</span>
+    <img src="farm.jpeg">
+    <button onclick="addToCart('Milk', 3)">Add to Cart</button>
+  </div>
+  <div class="product">
+    <span>Tea Powder - $4.00</span>
+    <img src="tea.jpg">
+    <button onclick="addToCart('Tea Powder', 4)">Add to Cart</button>
+  </div>
+</div>
+
+<div class="cart">
+  <h2>Your Cart</h2>
+  <div id="cart-items"></div>
+  <div class="total" id="total-price">Total: $0.00</div>
+</div>
+
+<script>
+  const cart = {};
+
+  function addToCart(productName, price) {
+    if (cart[productName]) {
+      cart[productName].quantity += 1;
+    } else {
+      cart[productName] = { price: price, quantity: 1 };
+    }
+    renderCart();
+  }
+
+  function updateQuantity(productName, delta) {
+    const item = cart[productName];
+    if (item) {
+      item.quantity += delta;
+      if (item.quantity <= 0) {
+        delete cart[productName];
+      }
+      renderCart();
+    }
+  }
+
+  function renderCart() {
+    const cartDiv = document.getElementById('cart-items');
+    cartDiv.innerHTML = '';
+
+    let total = 0;
+
+    for (const product in cart) {
+      const item = cart[product];
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+
+      div.innerHTML = `
+        <span>${product} - $${item.price.toFixed(2)}</span>
+        <button onclick="updateQuantity('${product}', -1)">-</button>
+        <input type="number" value="${item.quantity}" min="1" onchange="changeQuantity('${product}', this.value)">
+        <button onclick="updateQuantity('${product}', 1)">+</button>
+        <span>= $${itemTotal.toFixed(2)}</span>
+      `;
+      cartDiv.appendChild(div);
+    }
+
+    document.getElementById('total-price').textContent = `Total: $${total.toFixed(2)}`;
+  }
+
+  function changeQuantity(productName, value) {
+    const quantity = parseInt(value);
+    if (!isNaN(quantity) && quantity > 0) {
+      cart[productName].quantity = quantity;
+      renderCart();
+    } else if (quantity <= 0) {
+      delete cart[productName];
+      renderCart();
+    }
+  }
+</script>
+
+</body>
+</html>

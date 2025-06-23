@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CSS Grid Multi-Column Layout</title>
+<style>
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .item {
+    background: #4CAF50;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<h2>Fruits list</h2>
+<div class="grid-container">
+  <div class="item">Apple</div>
+  <div class="item">Mango</div>
+  <div class="item">Orange</div>
+  <div class="item">Grapes</div>
+  <div class="item">Banana</div>
+  <div class="item">Watermelon</div>
+</div>
+</body>
+</html>

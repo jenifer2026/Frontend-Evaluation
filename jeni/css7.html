@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Responsive Flexbox Columns</title>
+<style>
+  .flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .column {
+    flex: 1 1 200px;
+    background-color: #e6dfdd;
+    color: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  img{
+    width: 50%;
+    height: 50%;
+  }
+</style>
+</head>
+<body>
+<h2>Sriram Clothings</h2>
+<div class="flex-container">
+  <div class="column">
+    <img src="product1.jpeg" alt="">
+  </div>
+  <div class="column">
+    <img src="product2.jpeg" alt="">
+  </div>
+  <div class="column">
+    <img src="product3.jpeg" alt="">
+  </div>
+  <div class="column">
+    <img src="product4.jpeg" alt="">
+  </div>
+</div>
+</body>
+</html>

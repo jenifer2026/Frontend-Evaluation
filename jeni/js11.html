@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Class Calender
+</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  #calendar {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  button {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    width: 14.28%;
+    height: 80px;
+    vertical-align: top;
+    position: relative;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  td:hover {
+    background-color: #eef;
+  }
+  .date-number {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-weight: bold;
+  }
+  .event {
+    margin-top: 20px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #fff;
+    cursor: pointer;
+  }
+  /* Color coding for event types */
+  .lecture { background-color: #4CAF50; }
+  .exam { background-color: #f44336; }
+  .office { background-color: #2196F3; }
+  
+  /* Details popup */
+  #details {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #ccc;
+    background: #fff;
+    display: none;
+  }
+  #details h3 {
+    margin-top: 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Class Schedule Calendar</h1>
+<div class="header">
+  <button onclick="prevMonth()">Previous</button>
+  <h2 id="monthYear"></h2>
+  <button onclick="nextMonth()">Next</button>
+</div>
+
+<div id="calendar"></div>
+
+<div id="details"></div>
+
+<script>
+const classSchedule = [
+  { date: '2025-06-10', type: 'lecture', title: 'Math Lecture 10AM' },
+  { date: '2025-06-10', type: 'office', title: 'Office Hours 2PM' },
+  { date: '2025-06-15', type: 'exam', title: 'Physics Exam' },
+  { date: '2025-06-20', type: 'lecture', title: 'Chemistry Lecture 11AM' },
+  { date: '2025-06-25', type: 'office', title: 'Office Hours 3PM' },
+  { date: '2025-06-05', type: 'exam', title: 'History Midterm' }
+];
+
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+
+function renderCalendar(month, year) {
+  const firstDay = new Date(year, month, 1).getDay(); // Sunday=0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  
+  document.getElementById('monthYear').innerText = `${monthNames[month]} ${year}`;
+  
+  let html = '<table><thead><tr>' +
+             '<th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th>' +
+             '<th>Thu</th><th>Fri</th><th>Sat</th>' +
+             '</tr></thead><tbody><tr>';
+
+  // Fill in blank cells for days before the first day
+  for(let i=0; i<firstDay; i++) {
+    html += '<td></td>';
+  }
+
+  let dayCount = 1;
+  for(let i=firstDay; dayCount <= daysInMonth; i++) {
+    if(i%7===0 && dayCount!==1) {
+      html += '</tr><tr>';
+    }
+    html += `<td data-date="${year}-${String(month+1).padStart(2,'0')}-${String(dayCount).padStart(2,'0')}">` +
+            `<div class="date-number">${dayCount}</div>`;
+    // Add events for this date
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(dayCount).padStart(2,'0')}`;
+    const events = classSchedule.filter(e => e.date===dateStr);
+    events.forEach(e => {
+      html += `<div class="event ${e.type}" onclick="showDetails('${e.title}', '${e.type}')">${e.type.charAt(0).toUpperCase()+e.type.slice(1)}</div>`;
+    });
+    html += '</td>';
+    dayCount++;
+  }
+  // Fill remaining cells
+  const remaining = 7 - ((firstDay + daysInMonth) % 7);
+  if(remaining < 7) {
+    for(let i=0; i<remaining; i++) {
+      html += '<td></td>';
+    }
+  }
+  html += '</tr></tbody></table>';
+
+  document.getElementById('calendar').innerHTML = html;
+}
+
+function showDetails(title, type) {
+  const detailsDiv = document.getElementById('details');
+  detailsDiv.style.display = 'block';
+  let colorClass = '';
+  if(type==='lecture') colorClass='lecture';
+  else if(type==='exam') colorClass='exam';
+  else if(type==='office') colorClass='office';
+
+  detailsDiv.innerHTML = `<h3>${title}</h3><div class="${colorClass}">${type.charAt(0).toUpperCase()+type.slice(1)}</div>`;
+}
+
+function prevMonth() {
+  if(currentMonth===0){
+    currentMonth=11;
+    currentYear--;
+  } else {
+    currentMonth--;
+  }
+  renderCalendar(currentMonth, currentYear);
+}
+
+function nextMonth() {
+  if(currentMonth===11){
+    currentMonth=0;
+    currentYear++;
+  } else {
+    currentMonth++;
+  }
+  renderCalendar(currentMonth, currentYear);
+}
+
+// Initialize
+renderCalendar(currentMonth, currentYear);
+</script>
+
+</body>
+</html>
